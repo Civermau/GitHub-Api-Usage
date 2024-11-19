@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub API Usage</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+    <link rel="icon" href="Icon.png">
+    <script>
+        async function fetchGitHubRateLimit() {
+            try {
+                // Fetch the user's IP address
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const userIP = ipData.ip;
+
+                // Display the user's IP address
+                document.getElementById('user-ip').textContent = userIP;
+
+                // Fetch GitHub API rate limit
+                const response = await fetch('https://api.github.com/rate_limit');
+                const data = await response.json();
+                const core = data.resources.core;
+                const search = data.resources.search;
+                const graphql = data.resources.graphql;
+
+                const currentTime = new Date();
+
+                const coreResetTime = new Date(core.reset * 1000);
+                const coreTimeLeft = Math.max(0, Math.floor((coreResetTime - currentTime) / 1000 / 60)); // in minutes
+
+                const searchResetTime = new Date(search.reset * 1000);
+                const searchTimeLeft = Math.max(0, Math.floor((searchResetTime - currentTime) / 1000 / 60)); // in minutes
+
+                const graphqlResetTime = new Date(graphql.reset * 1000);
+                const graphqlTimeLeft = Math.max(0, Math.floor((graphqlResetTime - currentTime) / 1000 / 60)); // in minutes
+
+                document.getElementById('core-limit').textContent = core.limit;
+                document.getElementById('core-remaining').textContent = core.remaining;
+                document.getElementById('core-reset').textContent = coreResetTime.toLocaleTimeString();
+                document.getElementById('core-time-left').textContent = `${coreTimeLeft} minutes`;
+
+                document.getElementById('search-limit').textContent = search.limit;
+                document.getElementById('search-remaining').textContent = search.remaining;
+                document.getElementById('search-reset').textContent = searchResetTime.toLocaleTimeString();
+                document.getElementById('search-time-left').textContent = `${searchTimeLeft} minutes`;
+
+                document.getElementById('graphql-limit').textContent = graphql.limit;
+                document.getElementById('graphql-remaining').textContent = graphql.remaining;
+                document.getElementById('graphql-reset').textContent = graphqlResetTime.toLocaleTimeString();
+                document.getElementById('graphql-time-left').textContent = `${graphqlTimeLeft} minutes`;
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        window.onload = function() {
+            fetchGitHubRateLimit();
+            setInterval(fetchGitHubRateLimit, 60000); // Update every 60 seconds
+        };
+    </script>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">GitHub API Usage</h1>
+            <p><strong>Your IP Address:</strong> <span id="user-ip">Loading...</span></p>
+            <div class="box">
+                <h2 class="subtitle">Core API</h2>
+                <p><strong>Total Requests Allowed:</strong> <span id="core-limit">Loading...</span></p>
+                <p><strong>Requests Remaining:</strong> <span id="core-remaining">Loading...</span></p>
+                <p><strong>Time Until Reset:</strong> <span id="core-reset">Loading...</span></p>
+                <p><strong>Time Left:</strong> <span id="core-time-left">Loading...</span></p>
+            </div>
+            <div class="box">
+                <h2 class="subtitle">Search API</h2>
+                <p><strong>Total Requests Allowed:</strong> <span id="search-limit">Loading...</span></p>
+                <p><strong>Requests Remaining:</strong> <span id="search-remaining">Loading...</span></p>
+                <p><strong>Time Until Reset:</strong> <span id="search-reset">Loading...</span></p>
+                <p><strong>Time Left:</strong> <span id="search-time-left">Loading...</span></p>
+            </div>
+            <div class="box">
+                <h2 class="subtitle">GraphQL API</h2>
+                <p><strong>Total Requests Allowed:</strong> <span id="graphql-limit">Loading...</span></p>
+                <p><strong>Requests Remaining:</strong> <span id="graphql-remaining">Loading...</span></p>
+                <p><strong>Time Until Reset:</strong> <span id="graphql-reset">Loading...</span></p>
+                <p><strong>Time Left:</strong> <span id="graphql-time-left">Loading...</span></p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
